@@ -18,7 +18,6 @@ const p2wpkh = bitcoin.payments.p2wpkh({
 console.log("p2wpkh Address: ", p2wpkh.address);
 const privateKey = keyPair.toWIF();
 console.log("private key:",privateKey)
-console.log(keyPair)
 // const p2sh = bitcoin.payments.p2sh({
 //   redeem: p2wpkh,
   
@@ -44,9 +43,9 @@ const { address: bech32Address } = bitcoin.payments.p2wpkh({
 console.log('Bech32 Address:', bech32Address);
 
 
+const { address } = bitcoin.payments.p2pkh({ pubkey: keyPair.publicKey });
 
-
-
+console.log("公网 p2pkh:"+address)
 
 function getP2TRAddress(keyPair) {
   const pubKey = ecurve.Point.decodeFrom(secp256k1, keyPair.publicKey)
@@ -77,35 +76,45 @@ const p2shtest = bitcoin.payments.p2sh({
 console.log("P2SH Address:", p2shtest.address);
 
 
+const redeemScriptProd = bitcoin.payments.p2ms({
+  m: 1, // 2 signatures required
+  pubkeys: [pubkey1],
+}).output;
+const p2shprod = bitcoin.payments.p2sh({
+  redeem: { output: redeemScript },
+});
+console.log("P2SH 公网 Address:", p2shprod.address);
 
-async function createP2PKHwallet() {
-    try {
-        const keyPair = ECPair.makeRandom({ network: network });
-        const { address } = bitcoin.payments.p2pkh({
-          pubkey: keyPair.publicKey,
-          network: network,
-        });
-        const privateKey = keyPair.toWIF()
 
-        console.log(`| Public Address | ${address} |`)
-        console.log(`| Private Key | ${privateKey} |`)
 
-        const wallet = {
-            address: address,
-            privateKey: privateKey
-        };
+// async function createP2PKHwallet() {
+//     try {
+//         const keyPair = ECPair.makeRandom({ network: network });
+//         const { address } = bitcoin.payments.p2pkh({
+//           pubkey: keyPair.publicKey,
+//           network: network,
+//         });
+//         const privateKey = keyPair.toWIF()
 
-        const walletJSON = JSON.stringify(wallet, null, 4);
+//         console.log(`| Public Address | ${address} |`)
+//         console.log(`| Private Key | ${privateKey} |`)
 
-        fs.writeFileSync('wallet.json', walletJSON);
+//         const wallet = {
+//             address: address,
+//             privateKey: privateKey
+//         };
 
-        console.log(`Wallet created and saved to wallet.json`);
-    } catch (error) {
-        console.log(error)
-    }
-}
+//         const walletJSON = JSON.stringify(wallet, null, 4);
 
-createP2PKHwallet();
+//         fs.writeFileSync('wallet.json', walletJSON);
+
+//         console.log(`Wallet created and saved to wallet.json`);
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }
+
+// createP2PKHwallet();
 
 
 
